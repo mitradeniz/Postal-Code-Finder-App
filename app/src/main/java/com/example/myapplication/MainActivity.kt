@@ -39,10 +39,9 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+
 
 internal var l: List<String> = mutableStateListOf()
-
 
 class MainActivity : ComponentActivity() {
 
