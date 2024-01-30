@@ -41,21 +41,84 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 
+internal var l: List<String> = mutableStateListOf()
+
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyApplicationTheme {
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Query()
-                    Column {
-                        ListViewPage()
+                    val navigate = Intent(this@MainActivity, ListPageActivity::class.java)
+                    var il by remember { mutableStateOf("") }
+                    var ilce by remember { mutableStateOf("") }
+                    var semtBucakMahalle by remember { mutableStateOf("") }
+                    var mahalle by remember { mutableStateOf("") }
+                    //var serverResponse by remember { mutableStateOf("") }
 
-                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White)
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp),
+
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceEvenly,
+
+                        ) {
+                        TextField(
+                            value = il,
+                            onValueChange = { newIl -> il = newIl },
+                            label = { Text("İl") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+
+                        TextField(
+                            value = ilce,
+                            onValueChange = { newIlce -> ilce = newIlce },
+                            label = { Text("Ilçe") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+
+                        TextField(
+                            value = semtBucakMahalle,
+                            onValueChange = { newSemtBucakMahalle -> semtBucakMahalle = newSemtBucakMahalle},
+                            label = { Text(text = "Semt")},
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+
+                        TextField(
+                            value = mahalle,
+                            onValueChange = { newMahalle -> mahalle = newMahalle },
+                            label = { Text("Mahalle") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+                        Button(
+                            onClick = {
+                                l = Query(il, ilce, semtBucakMahalle, mahalle)
+                                startActivity(navigate)
+
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("ARA")
+                        }
+
 
 
                 }
@@ -63,95 +126,28 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-internal var l: List<String> = mutableStateListOf()
 
-@Composable
-fun Query() {
-    var il by remember { mutableStateOf("") }
-    var ilce by remember { mutableStateOf("") }
-    var semtBucakMahalle by remember { mutableStateOf("") }
-    var mahalle by remember { mutableStateOf("") }
-    var serverResponse by remember { mutableStateOf("") }
+fun Query(il: String, ilce: String, semtBucakMahalle: String, mahalle: String): List<String> {
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+    val query = "${il.toUpperCase()},${ilce.toUpperCase()},${semtBucakMahalle.toUpperCase()},${mahalle.toUpperCase()}"
+    val serverIp = "192.168.1.35"
+    val serverPort = 12345
+    val serverAddress = InetSocketAddress(serverIp, serverPort)
+    var serverResponse: String
 
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly,
-
-        ) {
-        TextField(
-            value = il,
-            onValueChange = { newIl -> il = newIl },
-            label = { Text("İl") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-
-        TextField(
-            value = ilce,
-            onValueChange = { newIlce -> ilce = newIlce },
-            label = { Text("Ilçe") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-
-        TextField(
-            value = semtBucakMahalle,
-            onValueChange = { newSemtBucakMahalle -> semtBucakMahalle = newSemtBucakMahalle},
-            label = { Text(text = "Semt")},
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-
-        TextField(
-            value = mahalle,
-            onValueChange = { newMahalle -> mahalle = newMahalle },
-            label = { Text("Mahalle") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-        Button(
-            onClick = {
-                val query = "${il.toUpperCase()},${ilce.toUpperCase()},${semtBucakMahalle.toUpperCase()},${mahalle.toUpperCase()}"
-                val serverIp = "192.168.1.35"
-                val serverPort = 12345
-                val serverAddress = InetSocketAddress(serverIp, serverPort)
-
-
-                ServerTask(object : ServerTask.OnServerTaskListener {
-                    override fun onTaskComplete(result: String) {
-                        serverResponse = result
-                        l = responseDataProcess(serverResponse)
-
-                    }
-                }).execute(serverAddress, query)
-
-
-
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("ARA")
+    ServerTask(object : ServerTask.OnServerTaskListener {
+        override fun onTaskComplete(result: String) {
+            serverResponse = result
+            l = responseDataProcess(serverResponse)
         }
+    }).execute(serverAddress, query)
 
-        Text(text = serverResponse)
-
-
+    return l
     }
 }
 
 @Composable
-@Preview(showBackground = true)
-fun ListViewPage() {
+fun ListViewPage(l: List<String>) {
     LazyColumn() {
 
         items(l) { infos ->
@@ -242,6 +238,11 @@ class ServerTask(private val listener: OnServerTaskListener) : AsyncTask<Any, Vo
 private fun responseDataProcess(response: String): List<String> {
     var a = ""
     val list = mutableListOf<String>()
+    if (response.length <= 50) {
+        list.add(response)
+        return list
+    }
+
     for (i in response) {
         a += i
         if (i == '\n') {
