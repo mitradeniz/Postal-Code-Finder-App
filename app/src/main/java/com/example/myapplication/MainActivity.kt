@@ -51,11 +51,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+
                     Query()
                     Column {
                         ListViewPage()
 
                     }
+
 
                 }
             }
@@ -135,13 +137,14 @@ fun Query() {
                 }).execute(serverAddress, query)
 
 
+
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("ARA")
         }
-        
 
+        Text(text = serverResponse)
 
 
     }
