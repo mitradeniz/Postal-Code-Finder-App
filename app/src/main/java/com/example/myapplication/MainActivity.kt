@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
@@ -39,6 +40,9 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.font.FontWeight
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 internal var l: List<String> = mutableStateListOf()
@@ -59,7 +63,6 @@ class MainActivity : ComponentActivity() {
                     var ilce by remember { mutableStateOf("") }
                     var semtBucakMahalle by remember { mutableStateOf("") }
                     var mahalle by remember { mutableStateOf("") }
-                    //var serverResponse by remember { mutableStateOf("") }
 
                     Column(
                         modifier = Modifier
@@ -107,10 +110,31 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp)
                         )
+                        /*
+                                                    onClick = {
+                                l = Query(il, ilce, semtBucakMahalle, mahalle)
+
+                                for (i in 0..100000000){
+                                    for (a in 0..10){
+
+                                    }
+                                }
+                                l = Query(il, ilce, semtBucakMahalle, mahalle)
+
+                                startActivity(navigate)
+                         */
                         Button(
                             onClick = {
-                                l = Query(il, ilce, semtBucakMahalle, mahalle)
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    val resultList = Query(il, ilce, semtBucakMahalle, mahalle)
+                                    l = resultList
+                                    for (i in 0..1300000000){
+
+                                    }
+                                }
                                 startActivity(navigate)
+
+
 
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -120,28 +144,28 @@ class MainActivity : ComponentActivity() {
 
 
 
+                    }
                 }
             }
         }
     }
-}
 
-fun Query(il: String, ilce: String, semtBucakMahalle: String, mahalle: String): List<String> {
+    fun Query(il: String, ilce: String, semtBucakMahalle: String, mahalle: String): List<String> {
 
-    val query = "${il.toUpperCase()},${ilce.toUpperCase()},${semtBucakMahalle.toUpperCase()},${mahalle.toUpperCase()}"
-    val serverIp = "192.168.1.35"
-    val serverPort = 12345
-    val serverAddress = InetSocketAddress(serverIp, serverPort)
-    var serverResponse: String
+        val query = "${il.toUpperCase()},${ilce.toUpperCase()},${semtBucakMahalle.toUpperCase()},${mahalle.toUpperCase()}"
+        val serverIp = "192.168.1.33"
+        val serverPort = 12345
+        val serverAddress = InetSocketAddress(serverIp, serverPort)
+        var serverResponse: String
 
-    ServerTask(object : ServerTask.OnServerTaskListener {
-        override fun onTaskComplete(result: String) {
-            serverResponse = result
-            l = responseDataProcess(serverResponse)
-        }
-    }).execute(serverAddress, query)
+        ServerTask(object : ServerTask.OnServerTaskListener {
+            override fun onTaskComplete(result: String) {
+                serverResponse = result
+                l = responseDataProcess(serverResponse)
+            }
+        }).execute(serverAddress, query)
 
-    return l
+        return l
     }
 }
 
@@ -172,7 +196,7 @@ fun Composition(infos: String) {
         mutableStateOf(false)
     }
     Row (modifier = Modifier
-        .background(Color.Blue)
+        .background(Color(R.color.cardBackground))
         .padding(12.dp)
         .animateContentSize()) {
 
@@ -249,6 +273,8 @@ private fun responseDataProcess(response: String): List<String> {
             a = ""
             continue
         }
+
     }
+    list.add(a)
     return list
 }

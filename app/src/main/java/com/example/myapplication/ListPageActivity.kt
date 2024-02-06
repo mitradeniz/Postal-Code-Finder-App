@@ -23,6 +23,7 @@ class ListPageActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     ListViewPage(l)
+
                 }
             }
         }
