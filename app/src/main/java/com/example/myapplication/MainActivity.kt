@@ -120,21 +120,7 @@ class MainActivity : ComponentActivity() {
 
                         Button(
                             onClick = {
-                                /*
-                                val resultList = Query(il, ilce, semtBucakMahalle, mahalle)
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    val resultList = Query(il, ilce, semtBucakMahalle, mahalle)
-                                    for (i in 0..1300000000){
 
-                                    }
-                                    l = resultList
-                                    for (i in 0..1300000000){
-
-                                    }
-                                }
-                                startActivity(navigate)
-
-                                 */
                                 a = il
                                 b = ilce
                                 c = semtBucakMahalle
@@ -174,7 +160,7 @@ fun reloadList() {
 internal fun Query(il: String, ilce: String, semtBucakMahalle: String, mahalle: String): List<String> {
 
     val query = "${il.toUpperCase()},${ilce.toUpperCase()},${semtBucakMahalle.toUpperCase()},${mahalle.toUpperCase()}"
-    val serverIp = "10.40.125.17"
+    val serverIp = "10.40.125.17"  // yayın yapılacak olan ip adresi ve portu
     val serverPort = 12345
     val serverAddress = InetSocketAddress(serverIp, serverPort)
     var serverResponse: String

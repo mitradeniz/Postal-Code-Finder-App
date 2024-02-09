@@ -23,7 +23,6 @@ class ListPageActivity : ComponentActivity() {
                         .fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //l = Query(a, b, c, d)
                     reloadList()
 
                 }
