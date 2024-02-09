@@ -40,15 +40,23 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.font.FontWeight
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 internal var l: List<String> = mutableStateListOf()
+internal var a: String = ""
+internal var b: String = ""
+internal var c: String = ""
+internal var d: String = ""
 
 class MainActivity : ComponentActivity() {
+    fun changePage(){
+        for (i in 1..3){
+            l = Query(a,b,c,d)
 
+        }
+        val navigate = Intent(this@MainActivity, ListPageActivity::class.java)
+        startActivity(navigate)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -58,7 +66,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val navigate = Intent(this@MainActivity, ListPageActivity::class.java)
                     var il by remember { mutableStateOf("") }
                     var ilce by remember { mutableStateOf("") }
                     var semtBucakMahalle by remember { mutableStateOf("") }
@@ -110,23 +117,16 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .padding(bottom = 8.dp)
                         )
-                        /*
-                                                    onClick = {
-                                l = Query(il, ilce, semtBucakMahalle, mahalle)
 
-                                for (i in 0..100000000){
-                                    for (a in 0..10){
-
-                                    }
-                                }
-                                l = Query(il, ilce, semtBucakMahalle, mahalle)
-
-                                startActivity(navigate)
-                         */
                         Button(
                             onClick = {
+                                /*
+                                val resultList = Query(il, ilce, semtBucakMahalle, mahalle)
                                 CoroutineScope(Dispatchers.IO).launch {
                                     val resultList = Query(il, ilce, semtBucakMahalle, mahalle)
+                                    for (i in 0..1300000000){
+
+                                    }
                                     l = resultList
                                     for (i in 0..1300000000){
 
@@ -134,7 +134,21 @@ class MainActivity : ComponentActivity() {
                                 }
                                 startActivity(navigate)
 
+                                 */
+                                a = il
+                                b = ilce
+                                c = semtBucakMahalle
+                                d = mahalle
 
+                                l = Query(a, b, c, d)
+
+                                for (i in 0..100000000){
+                                    for (a in 0..10){
+
+                                    }
+                                }
+
+                                changePage()
 
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -150,23 +164,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun Query(il: String, ilce: String, semtBucakMahalle: String, mahalle: String): List<String> {
+}
 
-        val query = "${il.toUpperCase()},${ilce.toUpperCase()},${semtBucakMahalle.toUpperCase()},${mahalle.toUpperCase()}"
-        val serverIp = "192.168.1.33"
-        val serverPort = 12345
-        val serverAddress = InetSocketAddress(serverIp, serverPort)
-        var serverResponse: String
+@Composable
+fun reloadList() {
+    ListViewPage(l)
+}
 
-        ServerTask(object : ServerTask.OnServerTaskListener {
-            override fun onTaskComplete(result: String) {
-                serverResponse = result
-                l = responseDataProcess(serverResponse)
-            }
-        }).execute(serverAddress, query)
+internal fun Query(il: String, ilce: String, semtBucakMahalle: String, mahalle: String): List<String> {
 
-        return l
-    }
+    val query = "${il.toUpperCase()},${ilce.toUpperCase()},${semtBucakMahalle.toUpperCase()},${mahalle.toUpperCase()}"
+    val serverIp = "10.40.125.17"
+    val serverPort = 12345
+    val serverAddress = InetSocketAddress(serverIp, serverPort)
+    var serverResponse: String
+
+    ServerTask(object : ServerTask.OnServerTaskListener {
+        override fun onTaskComplete(result: String) {
+            serverResponse = result
+            Log.e("serverResponse", result)
+            l = responseDataProcess(serverResponse)
+        }
+    }).execute(serverAddress, query)
+
+    return l
 }
 
 @Composable
@@ -219,6 +240,7 @@ fun Composition(infos: String) {
     }
 }
 
+
 class ServerTask(private val listener: OnServerTaskListener) : AsyncTask<Any, Void, String>() {
     interface OnServerTaskListener {
         fun onTaskComplete(result: String)
@@ -238,8 +260,7 @@ class ServerTask(private val listener: OnServerTaskListener) : AsyncTask<Any, Vo
             val inputStream = clientSocket.getInputStream()
 
             outputStream.write(query.toByteArray())
-
-            val buffer = ByteArray(100000)
+            val buffer = ByteArray(124444)
             val bytesRead = inputStream.read(buffer)
             if (bytesRead != -1) {
                 response = buffer.decodeToString(0, bytesRead)
