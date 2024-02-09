@@ -25,22 +25,21 @@ with open(csv_file_path, newline='', encoding='utf-8') as csv_file:
         except IndexError:
             print(f"Hata: Satır {index} eksik sütun içeriyor: {row}")
 
+
 def find_location(il, ilçe, semt_bucak_belde, Mahalle):
+
     matching_locations = []
 
+
     for data_model in data_list:
-        if ilçe and Mahalle:
-            if ilçe in data_model.ilçe and Mahalle in data_model.Mahalle:
-                matching_locations.append({
-                'il': data_model.il,
-                'ilçe': data_model.ilçe,
-                'semt_bucak_belde': data_model.semt_bucak_belde,
-                'Mahalle': data_model.Mahalle,
-                'PK': data_model.PK
-            })
+        conditions = [
+            (not il or il == data_model.il),
+            (not ilçe or ilçe == data_model.ilçe),
+            (not semt_bucak_belde or semt_bucak_belde == data_model.semt_bucak_belde),
+            (not Mahalle or Mahalle == data_model.Mahalle)
+        ]
 
-
-        elif (il and il in data_model.il) or (ilçe and ilçe in data_model.ilçe) or (semt_bucak_belde and semt_bucak_belde in data_model.semt_bucak_belde) or (Mahalle and Mahalle in data_model.Mahalle):
+        if all(conditions):
             matching_locations.append({
                 'il': data_model.il,
                 'ilçe': data_model.ilçe,
@@ -49,10 +48,19 @@ def find_location(il, ilçe, semt_bucak_belde, Mahalle):
                 'PK': data_model.PK
             })
 
+    if not matching_locations:
+        matching_locations.append({
+            'il': "-",
+            'ilçe': "-",
+            'semt_bucak_belde': "-",
+            'Mahalle': "-",
+            'PK': "-"
+        })
+
     return matching_locations
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(("192.168.1.35", 12345))
+server_socket.bind(("10.40.125.17", 12345))
 server_socket.listen(1)
 
 print("Sunucu başlatıldı. İstemci bekleniyor...")
